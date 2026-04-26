@@ -73,20 +73,17 @@ DESIGN.md: {path or `npx getdesign add <brand>`}
 
 ### Two paths to a DESIGN.md
 
-**Path A — Use an existing brand's DESIGN.md** (fastest, best for testing)
-Run `npx getdesign add <brand>` to pull one of 60+ pre-built brand profiles
-(Stripe / Linear / Notion / Apple / Tesla / Nike / Spotify / Starbucks /
-Coinbase / Figma / Cursor / Claude / etc.). Ready in ~30 seconds.
+**Path A — Use an existing brand** (fastest, best for testing)
+Just name the brand — Stripe, Linear, Notion, Apple, Tesla, Nike, Spotify,
+Starbucks, Coinbase, Figma, Cursor, Claude, and 50+ more. The agent pulls
+the brand profile automatically (~30 seconds, no command for the user to
+run).
 
-**Path B — Generate your own DESIGN.md from any input** (init mode, see
-Mode 1 below)
-Hand the agent whatever you have: URL, description, screenshot, Figma file,
-Tailwind config, tokens.json, CSS custom props, or any combination. Agent
-synthesizes a 9-section DESIGN.md matching the Stripe shape and validates
-with `@google/design.md` lint.
-
-(For corner cases not covered by either, you can also hand-write your own
-using `examples/awesome-vendor/stripe/DESIGN.md` as the canonical shape.)
+**Path B — Generate a DESIGN.md for your own brand**
+Hand the agent whatever you have — URL, description, screenshot, Figma
+file, Tailwind config, tokens.json, CSS, or any combination. The agent
+runs init mode (Mode 1 below) and synthesizes a 9-section DESIGN.md
+shaped like the Stripe canonical reference.
 
 ### Copy-paste example (Stripe ad-creative)
 
