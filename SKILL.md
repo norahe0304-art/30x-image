@@ -71,28 +71,22 @@ DESIGN.md: {path or `npx getdesign add <brand>`}
 | `scene-with-person` | Insert person into new scene (`action=edit`) | 1536×1024 |
 | `carousel` | LinkedIn/social carousel, 6-10 slides with shared design system | 1080×1080 or 1080×1350 |
 
-### Where to get a DESIGN.md
+### Two paths to a DESIGN.md
 
-1. **`npx getdesign list`** — 60+ brands ready to pull (Stripe / Linear /
-   Notion / Apple / Tesla / Nike / Spotify / Starbucks / Coinbase / Figma /
-   Cursor / Claude / etc.). One-liner: `npx getdesign add <brand>` lands a
-   ready DESIGN.md in cwd in ~30 seconds. Optionally augment with a
-   `taste:` block (5-7 numeric brand parameters) for axis biasing — see
-   `examples/awesome-vendor/stripe/DESIGN.md` frontmatter for the canonical
-   shape.
-2. **Describe your brand to the agent** — URL / Tailwind config /
-   tokens.json / Figma Variables / CSS custom props / screenshot / pure
-   prose ("warm, indie SaaS, lavender accent, rounded geometric"). The
-   agent runs `init` mode (Mode 1 below): primary path uses Stitch MCP
-   (Google's free official tool, 350 generations/month) when set up,
-   fallback is pure-LLM synthesis. Output is a 9-section DESIGN.md
-   matching the Stripe shape, validated with `@google/design.md` lint.
-   Less polished than getdesign for popular brands, but works for
-   anything not in the public library.
-3. **Hand-write your own** — copy the shape from
-   `examples/awesome-vendor/stripe/DESIGN.md` (full 9-section + frontmatter
-   + taste block) or `examples/google-official/atmospheric-glass/DESIGN.md`
-   (Google's 8-section reference). Slowest path, but you own every choice.
+**Path A — Use an existing brand's DESIGN.md** (fastest, best for testing)
+Run `npx getdesign add <brand>` to pull one of 60+ pre-built brand profiles
+(Stripe / Linear / Notion / Apple / Tesla / Nike / Spotify / Starbucks /
+Coinbase / Figma / Cursor / Claude / etc.). Ready in ~30 seconds.
+
+**Path B — Generate your own DESIGN.md from any input** (init mode, see
+Mode 1 below)
+Hand the agent whatever you have: URL, description, screenshot, Figma file,
+Tailwind config, tokens.json, CSS custom props, or any combination. Agent
+synthesizes a 9-section DESIGN.md matching the Stripe shape and validates
+with `@google/design.md` lint.
+
+(For corner cases not covered by either, you can also hand-write your own
+using `examples/awesome-vendor/stripe/DESIGN.md` as the canonical shape.)
 
 ### Copy-paste example (Stripe ad-creative)
 
@@ -119,9 +113,10 @@ order — flex to what they actually want):
    of the 8 templates, the agent falls back to cookbook generic skeleton
    + brand DESIGN.md + anti-slop, with no axis commitments. Slightly less
    deterministic but valid.)
-2. **Which brand?** Three paths: (a) DESIGN.md path you already have,
-   (b) `npx getdesign add <brand>` if it's in the 60+ library, (c)
-   describe the brand to the agent and get a synthesized DESIGN.md.
+2. **Which brand?** Either path A (existing — `npx getdesign add <brand>`
+   from the 60+ library, or a DESIGN.md path you already have) or path B
+   (generate one — describe brand / give URL / Figma / tokens / etc., and
+   the agent runs init mode).
 3. **What's the brief?** Subject + tagline + optional CTA. Or for
    carousel: per-slide subject/copy. Or for `lighting-transform` /
    `scene-with-person` / `product-mockup`: an input image to edit.
