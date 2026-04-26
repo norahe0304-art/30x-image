@@ -133,11 +133,24 @@ looking pasted on."
 
 ## Template 8: `carousel` (30x-image extension — NOT in OpenAI cookbook)
 
-**Default tool params:** `size=1080x1080` (square) or `1080x1350` (portrait 4:5),
+**Default tool params:** `size=1024x1024` (square) or `1024x1280` (portrait 4:5
+— LinkedIn-native ratio, gpt-image-2-valid since both dimensions are 16-multiples),
 `quality=high`, `n=1` per slide, **`n_slides=6` (default; user can override
 to 6-10)**, `action=generate` for **every** slide (no `action=edit` chain —
 slides are independent gpt-image-2 generations, same as every other template;
-cross-slide consistency comes from shared prompt prefix, fired in parallel)
+cross-slide consistency comes from shared prompt prefix, fired in parallel).
+
+**Critical:** gpt-image-2 requires both dimensions to be multiples of 16.
+**Do NOT pass `1080x1080` or `1080x1350`** — they get silently snapped to
+adjacent valid sizes and produce aspect-ratio distortion. Use `1024x1024` /
+`1024x1280` (these are the LinkedIn-native ratios in 16-multiple form).
+LinkedIn auto-scales any close ratio for upload, so visual fidelity is preserved.
+
+**Output: N separate PNG files, never a single composite.** Carousel = N
+independent gpt-image-2 calls → N PNG files (`slide-1.png`, `slide-2.png`,
+... `slide-N.png`). Do NOT generate a single image with N panels inside it
+(comic-strip style). Each slide must be a standalone full-resolution image
+that LinkedIn / Instagram / X uploads as one slide of the swipe sequence.
 
 **Why this template exists:** OpenAI cookbook covers single-deliverable use cases.
 LinkedIn / X / Instagram carousels are multi-image sequences with their own
@@ -210,4 +223,4 @@ slides (cover ≠ body ≠ CTA). Cannot be served by `slide` (single deck slide)
 | marketing-with-text | 5.5         | 1024×1536     | high            | 1         |
 | lighting-transform  | 5.6         | source-preserve | medium        | 1         |
 | scene-with-person   | 5.8         | 1536×1024     | high            | 1         |
-| carousel            | (extension) | 1080×1080 / 1080×1350 | high  | 1 per slide × 6 default (parallel) |
+| carousel            | (extension) | 1024×1024 / 1024×1280 | high  | 1 per slide × 6 default (parallel, N PNG files) |

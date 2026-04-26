@@ -86,7 +86,7 @@ DESIGN.md: {path or `npx getdesign add <brand>`}
 | `marketing-with-text` | Billboard / poster / packaging with verbatim copy | 1024×1536 |
 | `lighting-transform` | Re-stage existing image for new lighting/weather (`action=edit`) | source-preserve |
 | `scene-with-person` | Insert person into new scene (`action=edit`) | 1536×1024 |
-| `carousel` | LinkedIn/social carousel, 6-10 slides with shared design system | 1080×1080 or 1080×1350 |
+| `carousel` | LinkedIn/social carousel, 6-10 slides — N SEPARATE PNG files, never a composite | 1024×1024 or 1024×1280 |
 
 ### Two paths to a DESIGN.md
 
@@ -457,7 +457,14 @@ in one job. Procedure:
      Sanity-check: does slide N-1 feel like the payoff? Does slide 1
      hook toward it?
 3. **Fan out ALL slides in parallel as independent `action=generate`
-   calls** — same logic as every other template, just N calls instead of 1:
+   calls — produce N SEPARATE PNG files, never a single composite image.**
+   Same logic as every other template, just N calls instead of 1.
+   **DO NOT generate a single image with N panels arranged inside it
+   (comic-strip / grid style).** Each slide is a standalone full-resolution
+   PNG that the user uploads as one slide of the swipe sequence on
+   LinkedIn / Instagram / X. If you produce one composite image, that's
+   wrong — the user can't break it apart, and the platform won't paginate
+   it as a carousel:
    - Build per-slide prompt = shared design-system prefix + `THIS SLIDE:
      slide N of n_slides, role: <cover|body-N|cta>, subject:
      <jobspec.slides[N].subject>, copy: "<verbatim>"`.

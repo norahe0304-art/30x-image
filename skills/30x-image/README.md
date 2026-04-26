@@ -29,7 +29,7 @@ Produces:
 | `marketing-with-text` | Billboard / poster / packaging with verbatim copy | 1024×1536 |
 | `lighting-transform` | Re-stage existing image for new lighting/weather | source-preserve |
 | `scene-with-person` | Insert person into new scene | 1536×1024 |
-| `carousel` | LinkedIn / social carousel, 6-10 slides | 1080×1080 / 1080×1350 |
+| `carousel` | LinkedIn / social carousel, 6-10 slides (N separate PNGs) | 1024×1024 / 1024×1280 |
 
 ## How it works (3 layers)
 
