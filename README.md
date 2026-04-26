@@ -118,6 +118,11 @@ Three layers under the hood:
 - **M2** ✅ — `init` mode: 3-path generation (getdesign → Stitch MCP → LLM
   fallback), outputs 9-section format, validates with `@google/design.md`
   lint
+- **M3** ✅ — `edit` mode: surgical region edits via gpt-image-2's
+  `input_image_mask`. Four region paths (natural language / bbox / user
+  mask / global). Agent uses vision to find element bounds, generates
+  masks programmatically, edits only the masked region while preserving
+  the rest of the image 1:1.
 
 ## License
 

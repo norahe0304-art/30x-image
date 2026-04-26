@@ -161,9 +161,16 @@ order — flex to what they actually want):
    carousel: per-slide subject/copy. Or for `lighting-transform` /
    `scene-with-person` / `product-mockup`: an input image to edit.
 
+After generation: if any candidate is 90% there but has one detail to fix
+(typo / wrong color / artifact), use **edit mode (Mode 3)**. Just say:
+"in slide-3.png, change the headline to X" or "fix the CTA button in
+candidate-2.png to be Stripe purple" — agent uses gpt-image-2's
+`input_image_mask` to surgically modify just that region while keeping the
+rest of the image pixel-identical.
+
 ---
 
-## Two modes
+## Three modes
 
 ### Mode 1: `init` — build a DESIGN.md from any input source
 
@@ -325,6 +332,22 @@ to user with the JSON findings and ask for guidance.
 ### Mode 2: `generate` — produce on-brand image (M0/M1 focus)
 Read DESIGN.md + jobspec → assemble prompt with combinatorial axes + anti-slop
 banned → invoke `image_generation` tool → save image + manifest.
+
+### Mode 3: `edit` — surgical region edit on an already-generated image (M3)
+Take an existing PNG (typically from a previous Mode 2 run) + a region
+specifier + a new prompt → produce a new PNG where ONLY the specified
+region has changed, all other pixels preserved 1:1. Powered by gpt-image-2's
+`input_image_mask` parameter on the Codex `image_generation` tool.
+
+Use cases this solves:
+- "Candidate 2 is great but the tagline has a typo — fix just the headline"
+- "Slide 5's CTA button came out green but Stripe purple is mandated"
+- "Logo has a watermark artifact in the bottom-right — remove just that"
+
+**Why this matters:** Without Mode 3, fixing one detail means re-running the
+whole template (4 candidates, 30+ seconds per run, no guarantee the rest
+stays as good). Mode 3 keeps the 99% you love and only touches the 1% you
+hate.
 
 ---
 
@@ -525,6 +548,157 @@ Tell them:
 - Which axis picks were committed (transparency)
 - Optional: suggest "select one and run again with action=edit, quality=high"
   for the final pass.
+- Optional: remind that surgical edits are available — "if any candidate is
+  90% there but has one detail to fix (typo / wrong color / artifact), use
+  edit mode (Mode 3) to fix just that part and keep everything else."
+
+---
+
+## When user invokes `edit` (Mode 3 — surgical region edit)
+
+### Inputs
+
+- **`input_image`**: required. Path to the PNG you want to edit (typically
+  from a previous Mode 2 run, e.g. `candidates/2.png` or `slide-3.png`).
+- **What to change** (one of four ways — pick the most natural for the user):
+  1. **Natural-language region** — `region: "the headline at the top"` /
+     `"the CTA button"` / `"the bottom-right corner"`. Agent uses vision
+     to locate and generate a mask programmatically. Most natural UX.
+  2. **Normalized bbox** — `region_box: [x1, y1, x2, y2]` in 0.0-1.0
+     coordinates (top-left origin). Agent generates a rectangular mask.
+     Use when user gives precise coords or "the top 20%" type framing.
+  3. **User-supplied mask** — `mask: ./my-mask.png`. Same dimensions as
+     input_image, transparent (alpha=0) where to edit, opaque where to
+     preserve. For users who painted in Photoshop / Preview / Figma.
+  4. **Global edit (no mask)** — `global_prompt: "make it black and white"`.
+     No mask, prompt-only. ⚠️ Risk: gpt-image-2 may regenerate the whole
+     image, drifting from the original. Only use for true global changes
+     (color grade, time-of-day, weather). Warn user before proceeding.
+- **`prompt`**: what should appear in the masked region (or the global
+  change for global mode). Be specific — e.g. `"change tagline to 'Stop
+  fraud before it starts.' in the same font and weight"` not `"fix the
+  text"`.
+- **`output_path`**: optional. Default: alongside the input as
+  `<input-name>-edited-<timestamp>.png`.
+
+### Procedure (do these in order)
+
+**Step 1 — Load and validate input_image.**
+- Confirm file exists, is a PNG, is gpt-image-2-readable.
+- Read its dimensions (W × H) — needed for mask sizing.
+
+**Step 2 — Resolve the region into a mask PNG.**
+
+| Region type | How to produce mask |
+|-------------|---------------------|
+| Natural-language (`region: "..."`) | Pass input_image through Codex's vision capability. Identify the pixel bounding box of the described element. Generate a same-dimension PNG: target region transparent (alpha=0, RGBA 0,0,0,0), rest opaque (alpha=255). Use Python+PIL via shell, e.g. `python -c "from PIL import Image, ImageDraw; ..."`. |
+| Normalized bbox (`region_box: [x1,y1,x2,y2]`) | Multiply by W,H to get pixel rect. Generate mask PNG with that rect transparent, rest opaque. |
+| User mask (`mask: path`) | Verify dimensions match input_image. If mismatch, resize or error with clear message. |
+| Global (`global_prompt`) | No mask. Skip to Step 3. |
+
+Save the mask to a temp file (e.g. `/tmp/30x-image-mask-<job-id>.png`).
+
+**Step 3 — Upload input_image (and mask, if any) as files.**
+
+```python
+from openai import OpenAI
+client = OpenAI()
+
+def create_file(path):
+    with open(path, "rb") as f:
+        return client.files.create(file=f, purpose="vision").id
+
+input_file_id = create_file(input_image)
+mask_file_id = create_file(mask_path) if mask_path else None
+```
+
+**Step 4 — Invoke `image_generation` tool with `input_image_mask`.**
+
+For region/bbox/mask edits (Steps 2.1, 2.2, 2.3):
+```python
+response = client.responses.create(
+    model="gpt-5.5",
+    input=[{
+        "role": "user",
+        "content": [
+            {"type": "input_text", "text": prompt_with_brand_context},
+            {"type": "input_image", "file_id": input_file_id}
+        ],
+    }],
+    tools=[{
+        "type": "image_generation",
+        "quality": "high",
+        "input_image_mask": {"file_id": mask_file_id}
+    }],
+)
+```
+
+For global edits (Step 2.4 — no mask):
+```python
+# Same call, but omit input_image_mask. Warn user about regeneration risk.
+```
+
+**Prompt assembly** — wrap the user's edit prompt with brand context to
+prevent off-brand drift in the edited region. Pull from the original
+`manifest.json` (or DESIGN.md if available):
+
+```
+Edit ONLY the masked region of this image. Preserve everything outside
+the mask exactly.
+
+EDIT INSTRUCTION:
+{user's edit prompt}
+
+BRAND CONTEXT (the edited region must remain on-brand):
+- Palette: {colors.primary}, {colors.surface}, {colors.on-surface} — do not
+  introduce new colors
+- Typography: {typography.headline-display.fontFamily} weight {fontWeight}
+- Anti-slop: same banned list as original generation (no AI yellow-tint, no
+  pure black, no Inter font, etc.)
+
+Do not regenerate the whole image. Do not alter pixels outside the mask.
+```
+
+**Step 5 — Save and report.**
+
+- Save output PNG to `output_path`.
+- Append to a Mode-3 manifest entry:
+  ```json
+  {
+    "edit_id": "ISO-timestamp",
+    "input_image": "...",
+    "input_image_hash": "sha256:...",
+    "region_type": "natural-language" | "bbox" | "user-mask" | "global",
+    "region_value": "the headline at the top",
+    "mask_path": "/tmp/30x-image-mask-...png",
+    "mask_hash": "sha256:...",
+    "edit_prompt": "...",
+    "output_path": "...",
+    "created_at": "..."
+  }
+  ```
+- Tell user: where the edited PNG is, what region was masked (transparency),
+  and a side-by-side diff suggestion ("compare to the original at <input_path>").
+
+### Important limitations (from gpt-image-2 documented behavior)
+
+1. **Iterative-edit "stubbornness"** — editing the same image more than
+   2-3 times in succession causes the model to stop making meaningful
+   changes. **Workaround:** if a third edit doesn't take, regenerate the
+   image fresh from Mode 2 with the desired change baked into the prompt.
+2. **Mask is guidance, not law** — gpt-image-2 uses the mask as guidance
+   but may not follow its exact shape with complete precision. Edges can
+   bleed slightly into preserved areas. For pixel-perfect preservation
+   needs, consider compositing in a separate image editor.
+3. **Self-correction hallucination** — if the user asks to edit something
+   that doesn't actually exist in the image (e.g. "remove the QR code"
+   when there is no QR code), the model may hallucinate the missing
+   element AND then "fix" it. Vision-validate the region exists before
+   masking.
+4. **Global edits without mask drift** — using `global_prompt` (no mask)
+   risks the model regenerating the whole image. For true preservation,
+   always provide a mask, even if the mask is the entire image except
+   one tiny corner.
 
 ---
 

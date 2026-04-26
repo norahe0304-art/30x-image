@@ -1,10 +1,12 @@
-# RUN-IN-CODEX.md — M0 + M1 验收记录
+# RUN-IN-CODEX.md — M0 + M1 + M2 + M3 验收记录
 
 > **状态**（2026-04-26）：
 > - M0 ✅ — Stripe ad-creative 端到端跑通（首次实测）
 > - M1 ✅ — 其余 6 模板（logo / slide / product-mockup / marketing-with-text /
 >   lighting-transform / scene-with-person）combinatorial axes 补完，全部实测通过
+> - M1.5 ✅ — carousel 第 8 模板，多 slide 并行 action=generate，N 张独立 PNG
 > - M2 ✅ — `init` 模式落地：3 路径（getdesign 优先 / Stitch MCP 次之 / LLM 兜底），输出我们的 9 节格式，跑完用 `@google/design.md lint` 校验，auto-inferred 字段标注 `# auto-inferred, please review`
+> - M3 ✅ — `edit` 模式落地：手术刀级区域编辑。用户给已生成的 PNG + 区域描述（自然语言 / bbox / 用户自画 mask / 全局），agent 调 vision 找边界 → 程序生成 mask → 通过 `image_generation` tool 的 `input_image_mask` 参数局部修改，其他像素 1:1 保留。覆盖三种修复场景：错字 / 颜色错误 / 单元素 artifact
 >
 > **关键判断（M1 实测验证）**：DESIGN.md `## 9. Agent Prompt Guide` 的
 > brand-specific cheat sheet **不需要为每个新模板补**。frontmatter（colors /

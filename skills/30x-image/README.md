@@ -104,6 +104,12 @@ Jobspec:
   Stitch MCP secondary → LLM fallback), outputs our 9-section format,
   validated with `@google/design.md` lint, auto-inferred fields marked
   `# auto-inferred, please review`
+- **M3** ✅ — `edit` mode landed: surgical region edits via gpt-image-2's
+  `input_image_mask` parameter. Four region-specifier paths — natural
+  language ("the headline at the top"), normalized bbox, user-supplied
+  mask PNG, global no-mask. Agent uses vision to locate elements,
+  programmatically generates masks, calls `image_generation` to modify
+  only the masked region while preserving 99% of pixels 1:1.
 
 ## Key design decisions (verified)
 
