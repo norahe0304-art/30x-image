@@ -110,10 +110,36 @@ order — flex to what they actually want):
    of the 8 templates, the agent falls back to cookbook generic skeleton
    + brand DESIGN.md + anti-slop, with no axis commitments. Slightly less
    deterministic but valid.)
-2. **Which brand?** Either path A (existing — `npx getdesign add <brand>`
-   from the 60+ library, or a DESIGN.md path you already have) or path B
-   (generate one — describe brand / give URL / Figma / tokens / etc., and
-   the agent runs init mode).
+2. **Which brand?** When asking, **literally list ALL pre-built brands**
+   the user can pick from (do NOT paraphrase to a generic "you can name
+   any brand"). Run `npx getdesign list` to get the live full set, OR use
+   this confirmed snapshot of 59 brands (verify with `npx getdesign list`
+   in case the upstream library expanded):
+
+   > **AI / Tooling:** Claude, Cohere, Composio, Cursor, ElevenLabs, Expo,
+   > HashiCorp, Lovable, MiniMax, Mistral.ai, NVIDIA, Ollama, OpenCode.ai,
+   > PostHog, Raycast, Replicate, Resend, RunwayML, Superhuman,
+   > Together.ai
+   >
+   > **SaaS / Product:** Airbnb, Airtable, Cal, ClickHouse, Figma, Framer,
+   > IBM, Intercom, Linear, MongoDB, Mintlify, Miro, Notion, Sanity,
+   > Sentry, Shopify, Stripe, Supabase
+   >
+   > **Fintech / Crypto:** Binance, Coinbase, Kraken, Mastercard,
+   > Revolut
+   >
+   > **Consumer / Lifestyle:** Apple, Meta, Nike, Pinterest, PlayStation,
+   > Spotify, Starbucks, theVerge, Uber
+   >
+   > **Auto / Hardware:** BMW, Bugatti, Ferrari, Lamborghini, Renault,
+   > SpaceX, Tesla
+   >
+   > Just name any one — agent runs `npx getdesign add <brand>` and pulls
+   > a ready DESIGN.md in ~30 seconds.
+
+   Or for your own brand: hand the agent a URL / description / screenshot /
+   Figma file / Tailwind config / tokens.json / CSS — agent runs init mode
+   (Mode 1) and synthesizes a DESIGN.md.
 3. **What's the brief?** Subject + tagline + optional CTA. Or for
    carousel: per-slide subject/copy. Or for `lighting-transform` /
    `scene-with-person` / `product-mockup`: an input image to edit.

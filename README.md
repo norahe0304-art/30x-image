@@ -8,11 +8,25 @@ API keys, drift, or AI defaults.
 
 ## Install
 
+For **user-global** install (recommended — skill available across all
+projects):
+
 ```bash
-npx skills add norahe0304-art/30x-image
+cd ~ && npx skills add norahe0304-art/30x-image
 ```
 
-Restart your Codex / Claude Code session and the skill loads automatically.
+For **project-local** install (only this project sees the skill):
+
+```bash
+cd /path/to/your/project && npx skills add norahe0304-art/30x-image
+```
+
+The `skills` CLI auto-detects scope based on cwd — run from your home
+directory for global, run from inside a project for local. After install,
+restart your Codex / Claude Code session and the skill loads automatically.
+
+> If you accidentally installed to project scope and want to move it to
+> user-global: `mv .agents/skills/30x-image ~/.agents/skills/30x-image`.
 
 ## Quickstart
 
