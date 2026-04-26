@@ -31,6 +31,23 @@ If the user just invoked `30x-image` without a clear jobspec (e.g. "use
 asking parameters one at a time**. Most users don't know what's available
 until they see it.
 
+**MANDATORY for the Quickstart response — do NOT abbreviate or drop any
+of these four blocks:**
+
+1. **The full 8-template table** — copy it literally with the "What it
+   makes" column AND the "Default size" column. Bare template names
+   (e.g. just `logo, ad-creative, slide, ...`) are NOT acceptable —
+   users need to see what each makes to choose.
+2. **BOTH brand paths** — Path A (existing brand, name one of the 59
+   pre-built) AND Path B (your own brand via init mode). Never show only
+   Path A. Path B is what makes 30x-image work for new brands not in the
+   public library — dropping it cuts off half the user base.
+3. **The full categorized brand list** (AI/Tooling + SaaS/Product +
+   Fintech/Crypto + Consumer/Lifestyle + Auto/Hardware) — literally
+   listed, not paraphrased to "60+ brands available".
+4. **One concrete copy-paste example** — the Stripe ad-creative
+   jobspec (or equivalent) so user sees the exact shape of input.
+
 > **First time? Just try a popular brand.** `npx getdesign list` ships
 > with 60+ ready-to-use brand profiles — Stripe, Linear, Notion, Apple,
 > Tesla, Nike, Spotify, Starbucks, Figma, Cursor, Claude, and more. Pick
