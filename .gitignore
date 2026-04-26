@@ -3,10 +3,16 @@ marketing/
 profiles/
 candidates/
 *.png
-!examples/**/*.png
+!skill/examples/**/*.png
 
 # Manifests
 manifest.json
+
+# npm / node
+node_modules/
+*.log
+.npm/
+.npmrc
 
 # Editor / OS
 .DS_Store
@@ -14,7 +20,3 @@ manifest.json
 *.swo
 .idea/
 .vscode/
-
-# Node / npm temp
-node_modules/
-*.log
