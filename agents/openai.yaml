@@ -1,0 +1,24 @@
+interface:
+  display_name: "30x Image — Brand Marketing Imagery"
+  short_description: "On-brand marketing images via DESIGN.md + Codex built-in image_generation. Zero OpenAI API key required."
+  brand_color: "#635BFF"
+  default_prompt: "Read DESIGN.md, pick a marketing template, generate on-brand image(s)."
+
+policy:
+  # Allow Codex to auto-trigger when description matches; user can disable
+  allow_implicit_invocation: true
+
+dependencies:
+  tools:
+    - type: "builtin"
+      value: "image_generation"
+      description: "Codex built-in gpt-image-2 access — no API key, calls billed via Codex subscription."
+
+# Optional: external CLI dependencies (informational, used by init/generate flows)
+external_cli:
+  - name: "@google/design.md"
+    purpose: "Lint, diff, export DESIGN.md (npx @google/design.md ...)"
+    install: "no install — use npx"
+  - name: "getdesign"
+    purpose: "Pull pre-made DESIGN.md for popular brands (npx getdesign add <brand>)"
+    install: "no install — use npx"

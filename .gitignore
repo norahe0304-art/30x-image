@@ -1,0 +1,20 @@
+# Generated outputs (per-job artifacts, not source)
+marketing/
+profiles/
+candidates/
+*.png
+!examples/**/*.png
+
+# Manifests
+manifest.json
+
+# Editor / OS
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Node / npm temp
+node_modules/
+*.log
