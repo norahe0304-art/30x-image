@@ -83,9 +83,12 @@ DESIGN.md: {path or `npx getdesign add <brand>`}
 2. **Describe your brand to the agent** — URL / Tailwind config /
    tokens.json / Figma Variables / CSS custom props / screenshot / pure
    prose ("warm, indie SaaS, lavender accent, rounded geometric"). The
-   agent synthesizes a DESIGN.md on the fly (informal `init` — formal M2
-   pending). Less polished than getdesign for popular brands, but works
-   for anything not in the public library.
+   agent runs `init` mode (Mode 1 below): primary path uses Stitch MCP
+   (Google's free official tool, 350 generations/month) when set up,
+   fallback is pure-LLM synthesis. Output is a 9-section DESIGN.md
+   matching the Stripe shape, validated with `@google/design.md` lint.
+   Less polished than getdesign for popular brands, but works for
+   anything not in the public library.
 3. **Hand-write your own** — copy the shape from
    `examples/awesome-vendor/stripe/DESIGN.md` (full 9-section + frontmatter
    + taste block) or `examples/google-official/atmospheric-glass/DESIGN.md`
@@ -127,10 +130,162 @@ order — flex to what they actually want):
 
 ## Two modes
 
-### Mode 1: `init` — build a DESIGN.md (M2 milestone, not yet implemented in M0)
-Multi-source input: URL / Tailwind / tokens.json / Figma Variables / CSS vars /
-description / existing DESIGN.md / `npx getdesign add <brand>`. Output goes to
-`$HOME/.30x-image/profiles/<brand-slug>/`.
+### Mode 1: `init` — build a DESIGN.md from any input source
+
+Multi-source input: URL / description / screenshot / Figma Variables /
+Tailwind config / tokens.json / CSS custom props / existing DESIGN.md /
+`npx getdesign add <brand>`. Output: a complete DESIGN.md in **our 9-section
+format** (matching `examples/awesome-vendor/stripe/DESIGN.md` shape, NOT
+Google's 8-section spec — we extend with `## 8. Responsive Behavior` and
+keep our own section ordering). Saved to:
+- `$HOME/.30x-image/profiles/<brand-slug>/DESIGN.md` if profile dir exists
+- otherwise `./DESIGN.md` in cwd
+
+#### Procedure
+
+**Step 1 — Pick the generation path (priority order):**
+
+1. **`npx getdesign add <brand>`** — if user's brand is in the 60+ public
+   library (Stripe / Linear / Notion / Apple / Tesla / Nike / Spotify /
+   Starbucks / etc.), pull the ready DESIGN.md. **This is the highest
+   quality path** — use it whenever possible. Augment with a `taste:` block
+   (see Step 3).
+
+2. **Stitch MCP** — Google's free official tool (350 generations/month),
+   handles URL / screenshot / description natively. Setup:
+   - User generates an API Key from Stitch Settings (https://stitch.withgoogle.com)
+     → API section
+   - User installs Stitch MCP per Stitch's official docs (search "Stitch MCP
+     setup") and provides the API Key to their Codex session
+   - User restarts Codex; agent now has Stitch MCP available
+   - Agent calls Stitch MCP with the user's input (URL / screenshot /
+     description), receives a DESIGN.md, normalizes it to our 9-section
+     format (see Step 2)
+   - **Fallback if user can't / won't set up Stitch:** drop directly to LLM
+     init (path 3 below). Don't block on Stitch.
+
+3. **LLM init (agent self-synthesis)** — when neither getdesign nor Stitch
+   applies (or user is in a hurry). Agent reads the input source and
+   writes a DESIGN.md from scratch following the Stripe DESIGN.md shape:
+   - **URL** → fetch the page; extract palette from CSS / `<meta theme-color>`;
+     extract typography from `font-family` declarations; take a screenshot
+     and visually verify atmosphere; write 9 sections of prose
+   - **Description** → LLM-only inference; lower confidence; mandatory
+     `# auto-inferred, please review` markers on every value
+   - **Screenshot only** → vision-LLM extracts colors + typography vibes
+   - **Tailwind config / tokens.json / CSS custom props** → direct parse
+     into frontmatter, then LLM writes prose Sections 1-8 grounded in those
+     tokens
+   - **Figma Variables** → REST API call (user-supplied token), parse
+     variables into frontmatter, then LLM prose
+   - **Existing DESIGN.md (Google format / external source)** → convert
+     section names to our 9-section format, augment with `taste:` block
+
+**Step 2 — Output structure (always our 9-section format):**
+
+```yaml
+---
+version: alpha
+name: <brand>
+description: <one-line brand positioning>
+colors:
+  primary: <hex>
+  secondary: <hex>
+  ...
+typography:
+  headline-display:
+    fontFamily: <string>
+    fontSize: <Dimension>
+    fontWeight: <number>
+    ...
+rounded: { sm: ..., md: ..., lg: ..., full: ... }
+spacing: { xs: ..., sm: ..., md: ..., lg: ..., xl: ... }
+components:
+  button-primary: { ... }
+taste:
+  variance: <1-10>
+  density: <1-10>
+  art_direction: <1-10>
+  spacing: <1-10>
+  imagery_realism: <1-10>
+  text_density_in_image: <1-10>
+---
+
+# Design System Inspired by <Brand>
+
+## 1. Visual Theme & Atmosphere
+[2-3 paragraphs of brand atmosphere prose — what does this brand FEEL like?]
+
+## 2. Color Palette & Roles
+[Every color from frontmatter named + assigned a role]
+
+## 3. Typography Rules
+[Font family + hierarchy table + principles]
+
+## 4. Component Stylings
+[Buttons / cards / badges / inputs / nav specs]
+
+## 5. Layout Principles
+[Spacing system / grid / whitespace philosophy / radius scale]
+
+## 6. Depth & Elevation
+[Shadow system + decorative depth]
+
+## 7. Do's and Don'ts
+[Lists of explicit prescriptions and prohibitions]
+
+## 8. Responsive Behavior
+[Breakpoints / touch targets / collapsing strategy]
+
+## 9. Agent Prompt Guide
+[OPTIONAL — leave this empty or omit for new brands. Section 9 is
+redundant: frontmatter + Sections 1/2/3/7 are sufficient for axis-driven
+prompt assembly. See memory/30x-image-section9-redundant.md.]
+```
+
+**Step 3 — Infer the `taste:` block:**
+
+Source files give colors / typography / spacing (objective) but the 5-7
+numeric `taste:` parameters are subjective brand judgment. Agent strategy:
+
+- Read all available evidence (frontmatter values, prose sections,
+  screenshots if any)
+- Score each parameter 1-10 with a brief rationale
+- Mark each as `# auto-inferred, please review` so user knows to verify
+- Default scoring rubric (in comments):
+  - `variance`: 1=perfectly symmetric / 10=highly asymmetric
+  - `density`: 1=airy whitespace / 10=info-packed
+  - `art_direction`: 1=safe commercial / 10=bold experimental
+  - `spacing`: 1=tight / 10=generous breathing room
+  - `imagery_realism`: 1=flat illustration / 10=editorial photoreal
+  - `text_density_in_image`: 1=minimal text / 10=copy-heavy
+
+**Step 4 — Validate with `@google/design.md` lint:**
+
+After writing the DESIGN.md, run:
+```
+npx @google/design.md lint <path-to-DESIGN.md>
+```
+
+Surface findings to the user, prioritized:
+- `error`: broken-ref (token references that don't resolve) — must fix
+- `warning`: missing-primary / contrast-ratio / orphaned-tokens / section-order — flag
+- `info`: token-summary — show to user
+
+If `broken-ref` errors appear, attempt one auto-fix pass (resolve missing
+references using nearest token), then re-lint. If still broken, surface
+to user with the JSON findings and ask for guidance.
+
+**Step 5 — Report to user:**
+
+- Path of the saved DESIGN.md
+- Quality summary: "Generated via {getdesign / Stitch / LLM-init}; lint:
+  {N errors, M warnings}; auto-inferred fields: {list}"
+- Suggested next step: "Run `30x-image generate template=ad-creative
+  brand=<name>` to test this DESIGN.md immediately"
+- For LLM-init paths: explicitly tell user "review the auto-inferred
+  fields (`taste:` block + Section 7 Don't list) before committing to
+  this profile — the lower the input fidelity, the more guesswork"
 
 ### Mode 2: `generate` — produce on-brand image (M0/M1 focus)
 Read DESIGN.md + jobspec → assemble prompt with combinatorial axes + anti-slop

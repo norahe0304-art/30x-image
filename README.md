@@ -100,8 +100,10 @@ Jobspec:
   lighting-transform / scene-with-person
 - **M1.5** ✅ — `carousel` template (8th, 30x-image extension) with
   parallel `action=generate` slides + Narrative Tension Curve axis
-- **M2** ⏳ — `init` mode (auto-generate DESIGN.md from URL / description /
-  tokens) — design ongoing
+- **M2** ✅ — `init` mode landed: 3-path generation (getdesign primary →
+  Stitch MCP secondary → LLM fallback), outputs our 9-section format,
+  validated with `@google/design.md` lint, auto-inferred fields marked
+  `# auto-inferred, please review`
 
 ## Key design decisions (verified)
 

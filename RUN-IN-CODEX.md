@@ -4,7 +4,7 @@
 > - M0 ✅ — Stripe ad-creative 端到端跑通（首次实测）
 > - M1 ✅ — 其余 6 模板（logo / slide / product-mockup / marketing-with-text /
 >   lighting-transform / scene-with-person）combinatorial axes 补完，全部实测通过
-> - M2 ⏳ — `init` 模式（自动从 URL/Tailwind/tokens.json 建 DESIGN.md）未启动
+> - M2 ✅ — `init` 模式落地：3 路径（getdesign 优先 / Stitch MCP 次之 / LLM 兜底），输出我们的 9 节格式，跑完用 `@google/design.md lint` 校验，auto-inferred 字段标注 `# auto-inferred, please review`
 >
 > **关键判断（M1 实测验证）**：DESIGN.md `## 9. Agent Prompt Guide` 的
 > brand-specific cheat sheet **不需要为每个新模板补**。frontmatter（colors /
@@ -142,20 +142,20 @@ Stripe DESIGN.md 跑全模板 sweep。
 
 ## 六、之后干啥
 
-M0 ✅ + M1 ✅ → 进 M2：
+M0 ✅ + M1 ✅ + M2 ✅ → 下一步候选：
 
-- **`init` 模式**：自动从 URL / Tailwind config / tokens.json / Figma
-  Variables / CSS custom props / 描述 / 现有 DESIGN.md 构建新品牌的
-  DESIGN.md（含 frontmatter + 9 节 + taste 块）
-- **vendor 更多品牌**：Linear / Notion / Vercel / Apple（手动或借 init
-  模式自动）
+- **vendor 更多品牌实测**：getdesign 60+ 库里挑 Linear / Notion / Vercel /
+  Apple / Tesla / Nike 跑模板 sweep，验证轴系统跨品牌泛化
+- **drift checker**（视觉漂移检查）：图片生成后跑独立 vision-LLM 审计，
+  对比 DESIGN.md（palette / typography / Section 7 Don't），REJECTED
+  自动 retry — 这是图像生成赛道独家差异化
 - ~~写 scripts/render-prompt-guide.ts 自动生成 Section 9 cheat sheet~~
-  → **取消**：M1 验证 Section 9 是冗余层，未来不再投资
+  → **取消**：M1 验证 Section 9 是冗余层
 
-如果 M2 卡住 → 回头看：
-- 多源输入怎么归一化到 frontmatter token block？
-- LLM 抽 9 节 prose 时怎么避免幻觉？
-- taste 块的 5-7 个数值参数能不能从源文件可靠推断？
+如果某条路径卡住 → 回头看：
+- M2 init 三路径中 LLM 兜底质量是否够用？
+- Stitch MCP 输出格式归一化到我们 9 节是否漂？
+- vendor 更多品牌时 axes 是否需要新增/调整？
 
 ---
 
