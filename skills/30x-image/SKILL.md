@@ -11,6 +11,12 @@ description: |
   Do NOT trigger for: UI code generation, frontend reference imagery (use
   imagegen-frontend-web instead), video generation, or general image editing
   without brand context.
+
+  RUNTIME: Requires OpenAI `image_generation` tool (gpt-image-2 via Responses
+  API). Native to Codex (CLI / App / web). Claude Code users need an MCP
+  server that exposes image generation. If the tool is unavailable, this
+  skill HARD-STOPS with remediation guidance — it does NOT fall back to
+  HTML/CSS/Canvas rendering.
 ---
 
 # 30x-image — Brand-driven marketing imagery via Codex
@@ -170,6 +176,51 @@ After generation: if any candidate is 90% there but has one detail to fix
 candidate-2.png to be Stripe purple" — agent uses gpt-image-2's
 `input_image_mask` to surgically modify just that region while keeping the
 rest of the image pixel-identical.
+
+---
+
+## Runtime requirement (check this FIRST, before anything else)
+
+**This skill requires the `image_generation` tool (gpt-image-2 via OpenAI
+Responses API).** It is NOT optional and there is no code-rendering fallback.
+
+**Step 0 — Verify tool availability:**
+
+Before invoking `init` / `generate` / `edit`, check whether the
+`image_generation` tool is exposed in the current session. If you cannot
+call `image_generation` (the tool name isn't in your tools list, or the
+provider doesn't expose it), **HARD-STOP and tell the user**:
+
+> 30x-image requires gpt-image-2 via OpenAI's `image_generation` tool, which
+> isn't available in this session. Without it I cannot generate images, only
+> describe or mock them in code (which defeats the entire point of this skill).
+>
+> To fix:
+>
+> 1. **Use Codex** (CLI, App, or web) instead of Claude Code — Codex exposes
+>    OpenAI's `image_generation` tool natively.
+> 2. **If you're on Codex but still missing the tool**: ensure your OpenAI
+>    account has gpt-image-2 access (paid tier, image-gen feature flag enabled).
+> 3. **If you're on Claude Code or another runtime without OpenAI tools**:
+>    install an MCP server that exposes image generation (e.g. an OpenAI MCP
+>    server or a fal.ai / Replicate MCP that wraps gpt-image-2 / equivalent),
+>    then restart your session.
+>
+> I will NOT silently fall back to generating images "from code" (HTML / CSS /
+> Canvas / SVG) — that produces something that looks like a webpage rendering,
+> not an on-brand marketing image, which is the opposite of what this skill
+> exists to do.
+
+**Forbidden fallbacks (do not do these):**
+
+- Render the image with HTML / CSS / Canvas / SVG
+- Compose images by stitching local assets / clip art
+- Suggest the user "screenshot the agent's description"
+- Generate a different artifact (e.g. a markdown spec) and call it the result
+
+If the user wants ANY of those alternative outputs, that's a different ask
+and they should explicitly request it. The 30x-image skill produces ONLY
+gpt-image-2 generated PNGs. No exceptions.
 
 ---
 

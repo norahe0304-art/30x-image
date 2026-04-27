@@ -6,6 +6,17 @@ the built-in `image_generation` tool (gpt-image-2). Pairs a brand
 anti-slop banned list to produce high-quality marketing creative without
 API keys, drift, or AI defaults.
 
+## Runtime requirement
+
+This skill requires the OpenAI `image_generation` tool (gpt-image-2 via
+Responses API). It works **out of the box in Codex** (CLI, App, web).
+
+If you're on **Claude Code** or another runtime without OpenAI tools,
+you'll need an MCP server that exposes image generation (e.g. an OpenAI
+MCP, or fal.ai / Replicate MCP). The skill detects when `image_generation`
+is missing and HARD-STOPS with remediation guidance, rather than falling
+back to HTML/CSS rendering (which would defeat the purpose).
+
 ## Install
 
 For **user-global** install (recommended — skill available across all
