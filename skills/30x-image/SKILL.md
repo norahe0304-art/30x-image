@@ -130,29 +130,32 @@ order — flex to what they actually want):
 2. **Which brand?** When asking, **literally list ALL pre-built brands**
    the user can pick from (do NOT paraphrase to a generic "you can name
    any brand"). Run `npx getdesign list` to get the live full set, OR use
-   this confirmed snapshot of 59 brands (verify with `npx getdesign list`
+   this confirmed snapshot of 60 brands (verify with `npx getdesign list`
    in case the upstream library expanded):
 
-   > **AI / Tooling:** Claude, Cohere, Composio, Cursor, ElevenLabs, Expo,
-   > HashiCorp, Lovable, MiniMax, Mistral.ai, NVIDIA, Ollama, OpenCode.ai,
-   > PostHog, Raycast, Replicate, Resend, RunwayML, Superhuman,
+   > **AI / ML / Models (12):** Claude, Cohere, ElevenLabs, Lovable,
+   > MiniMax, Mistral.ai, NVIDIA, Ollama, OpenCode.ai, Replicate, RunwayML,
    > Together.ai
    >
-   > **SaaS / Product:** Airbnb, Airtable, Cal, ClickHouse, Figma, Framer,
-   > IBM, Intercom, Linear, MongoDB, Mintlify, Miro, Notion, Sanity,
-   > Sentry, Shopify, Stripe, Supabase
+   > **Dev tools / Infra / Databases (15):** Composio, Cursor, Expo,
+   > HashiCorp, IBM, PostHog, Raycast, Resend, Sentry, Superhuman, Supabase,
+   > MongoDB, ClickHouse, Framer, Mintlify
    >
-   > **Fintech / Crypto:** Binance, Coinbase, Kraken, Mastercard,
-   > Revolut
+   > **SaaS / Product / Productivity (10):** Airtable, Cal, Figma, Intercom,
+   > Linear, Miro, Notion, Sanity, Shopify, Stripe
    >
-   > **Consumer / Lifestyle:** Apple, Meta, Nike, Pinterest, PlayStation,
-   > Spotify, Starbucks, theVerge, Uber
+   > **Fintech / Crypto (5):** Binance, Coinbase, Kraken, Mastercard, Revolut
    >
-   > **Auto / Hardware:** BMW, Bugatti, Ferrari, Lamborghini, Renault,
+   > **Consumer / Lifestyle / Media (10):** Airbnb, Apple, Meta, Nike,
+   > Pinterest, PlayStation, Spotify, Starbucks, theVerge, Uber
+   >
+   > **Auto / Hardware (7):** BMW, Bugatti, Ferrari, Lamborghini, Renault,
    > SpaceX, Tesla
    >
-   > Just name any one — agent runs `npx getdesign add <brand>` and pulls
-   > a ready DESIGN.md in ~30 seconds.
+   > **Creative agency (1):** Clay
+   >
+   > Just name any one and the agent runs `npx getdesign add <brand>`,
+   > pulling a ready DESIGN.md in ~30 seconds.
 
    Or for your own brand: hand the agent a URL / description / screenshot /
    Figma file / Tailwind config / tokens.json / CSS — agent runs init mode
